@@ -1,0 +1,266 @@
+﻿<html>
+<!-- //Chen Lexuan
+//DIT/FT/1B/02
+//p2212562 -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+   <Title>Homepage</Title>
+    <script>
+        function reply_click(clicked_id) {
+            localStorage.setItem('film_id', clicked_id);
+            window.location.assign("http://localhost:3001/MovieDetails.html");
+        }
+        $(document).ready(function () {
+            if (localStorage.getItem('token') != null) {
+                $("#Login").hide();
+                $("#Logout").show();
+                $("#Admin").show();
+                $("#AddDVD").show();
+            } else {
+                $("#Logout").hide();
+                $("#Login").show();
+                $("#Admin").hide();
+                $("#AddDVD").hide();
+            }
+
+            $.ajax({
+                url: 'http://localhost:8081/category',
+                type: 'GET',
+                success: function (data) {
+                    if (data != null) {
+                        for (var i = 0; i < data.length; i++) {
+                            var option = "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+                            $("#category").append(option);
+                        }
+                    } else {
+                        console.log("Error");
+                    }
+                }
+            });
+
+            $("#Logout").click(function () {
+                window.localStorage.clear();
+                window.location.assign("http://localhost:3001/login.html");
+            });
+
+
+            $("#SearchTitle").click(function () {
+                $("#Movies").empty();
+                let MovieInput = $("#TitleInput").val();
+                let data = "{\"film_title\":\"" + MovieInput + "\"}";
+                $.ajax({
+                    url: 'http://localhost:8081/film_categories/filmTitle/',
+                    data: data,
+                    contentType: 'application/json; charset=utf-8',
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (data, textStatus, xhr) {
+                        if (data.length != 0) {
+                            for (var i = 0; i < data.length; i++) {
+                                var MovieTitle =
+                                    `<div class="col-lg-6 col-md-12" id="` + data[i].film_id + `" onClick="reply_click(this.id)">
+                                            <div class="card border-primary mb-3">
+                                                <div class="card-header">
+                                                    <h3>` + data[i].title + `</h3>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h5>Release Year: ` + data[i].release_year + `</h5>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h5>Rating: ` + data[i].rating + `</h5>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>`
+                                $("#Movies").append(MovieTitle);
+                            }
+                        } else {
+                            var MovieTitle =
+                                `<div>
+                                    <h4>No Movies Found</h4>
+                                </div>`
+                            $("#Movies").append(MovieTitle);
+                        }
+                    }
+                });
+            });
+
+            $("#Search").click(function () {
+                $("#Movies").empty();
+                let catID = $("#category").val();
+                if ($("#PriceInput").val() == '') {
+                    $.ajax({
+                        url: 'http://localhost:8081/film_categories/' + catID + '/films',
+                        type: 'GET',
+                        success: function (data) {
+                            if (data != null) {
+                                for (var i = 0; i < data.length; i++) {
+                                    var MovieCat =
+                                        `<div class="col-lg-6 col-md-12" id="` + data[i].film_id + `" onClick="reply_click(this.id)">
+                                            <div class="card border-primary mb-3">
+                                                <div class="card-header">
+                                                    <h3>` + data[i].title + `</h3>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h5>Release Year: ` + data[i].release_year + `</h5>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h5>Rating: ` + data[i].rating + `</h5>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>`
+                                    $("#Movies").append(MovieCat);
+                                }
+                            } else {
+                                console.log("Error");
+                            }
+                        }
+                    });
+                } else {
+                    var rental_rate = $("#PriceInput").val();
+                    if (catID == 0) {
+                        url = 'http://localhost:8081/film_categories/films/' + rental_rate
+                    } else {
+                        url = 'http://localhost:8081/film_categories/' + catID + '/films/' + rental_rate
+                    }
+                    if (isNaN($("#PriceInput").val())) {
+                        alert("Please enter a number")
+                    } else {
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            success: function (data) {
+                                if (data != null) {
+                                    for (var i = 0; i < data.length; i++) {
+                                        var MovieCat =
+                                            `<div class="col-lg-6 col-md-12" id="` + data[i].film_id + `" onClick="reply_click(this.id)">
+                                            <div class="card border-primary mb-3">
+                                                <div class="card-header">
+                                                    <h3>` + data[i].title + `</h3>
+                                                    <h5>` + data[i].release_year + `</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h5>Release Year: ` + data[i].release_year + `</h5>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h5>Rating: ` + data[i].rating + `</h5>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>`
+                                        $("#Movies").append(MovieCat);
+                                    }
+                                } else {
+                                    console.log("Error");
+                                }
+                            },
+                            error: function (err) {
+                                console.log('Error in Operation');
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+    </script>
+    <style>
+        .center-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .center-image img {
+            max-width: 100%;
+            max-height: 30vh;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="index.html">DVD Rental</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <div class="mx-2">
+                            <a href="login.html" class="btn btn-primary mr-2" id="Login">Log In</a>
+                            <a href="login.html" class="btn btn-danger mr-2" id="Logout">Log Out</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active mx-2" aria-current="page" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link mx-2" aria-current="page" href="admin.html" id="Admin">Admin</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link mx-2" aria-current="page" href="AddDVD.html" id="AddDVD">DVD</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container mt-4">
+            <div class="center-image">
+                <img src="logo2.png" alt="Kitty books">
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <label for="basic-url" class="form-label">Max Price</label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="PriceInput" aria-describedby="basic-addon3"
+                            placeholder="Type here">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label for="basic-url" class="form-label">Category</label>
+                    <div class="input-group mb-3">
+                        <select class="custom-select form-control" id="category">
+                            <option value="0" selected>None Selected</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end my-2">
+                <a href="#"><button class="btn btn-primary" id="Search">Search</button></a>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <input type="text" class="form-control" placeholder="Search for Title" id="TitleInput">
+                </div>
+            </div>
+            <div class="d-flex justify-content-end my-2">
+                <a href="#"><button class="btn btn-primary" id="SearchTitle">Search</button></a>
+            </div>
+        </div>
+        <div>
+            <div class="container">
+                <div class="row justify-content-center" id="Movies">
+                </div>
+            </div>
+        </div>
+    </body>
+
+</html>

@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<!-- //Chen Lexuan
+//DIT/FT/1B/02
+//p2212562 -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="css/login.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>login</title>
+    <script>
+        $(document).ready(function () {
+            $("#Login").click(function () {
+                var id = $('#email').val();
+                var pwd = $('#pwd').val();
+                var data = "{\"email\":\"" + id
+                    + "\", \"password\":\"" + pwd +
+                    "\"}";
+
+                $.ajax({
+                    url: 'http://localhost:8081/user/login',
+                    type: 'POST',
+                    data: data,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data, textStatus, xhr) {
+                        if (data != null) {
+                            localStorage.setItem('token', data.token);
+                            localStorage.setItem('userInfo', data.UserData);
+                            window.location.assign("http://localhost:3001/index.html");
+                        } else {
+                            alert("Wrong username or password")
+                            console.log("Error");
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Wrong username or password")
+                        console.log('Error in Operation');
+                    }
+                });
+                return false;
+            });
+        });
+
+    </script>
+    <style>
+
+        .center-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .center-image img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-form">
+        <div class="center-image">
+            <img src="logo2.png" alt="Kitty books">
+        </div>
+        <form action="">
+
+            <h2 class="text-center">Log in</h2>
+            <div class="form-group">
+                <input type="text" class="form-control" id="email" placeholder="Email address" required="required">
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" id="pwd" placeholder="Password" required="required">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block" id="Login">Log in</button>
+            </div>
+            <div class="clearfix">
+                <a href="index.html" class="pull-left">Sign up</a>
+                <a href="index.html" class="pull-right">Use as Guest</a>
+            </div>
+
+        </form>
+    </div>
+</body>
+
+</html>
